@@ -161,9 +161,168 @@ async function logoutuser(req, res) {
   });
 }
 
+async function getAddresses(req, res) {
+  try {
+    const user = await userModel.findById(req.user.id).select("addresses");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    return res.status(200).json({ success: true, addresses: user.addresses });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
+  }
+}
+
+// async function addAddress(req, res) {
+//   try {
+//     const id = req.user.id;
+
+//     const { street, city, state, pincode, country, isDefault } = req.body;
+
+//     const user = await userModel.findOneAndUpdate(
+//       { _id: id },
+//       {
+//         $push: {
+//           addresses: {
+//             street,
+//             city,
+//             state,
+//             pincode,
+//             country,
+//             isDefault,
+//           },
+//         },
+//       },
+//       { new: true },
+//     );
+
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Address added successfully",
+//       address: user.addresses[user.addresses.length - 1],
+//     });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Internal server error", error });
+//   }
+// }
+async function addAddress(req, res) {
+  try {
+    const id = req.user.id;
+
+    const { street, city, state, pincode, country, isDefault } = req.body;
+
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const defaultStatus = isDefault || user.addresses.length === 0;
+
+    if (defaultStatus) {
+      user.addresses.forEach((addr) => {
+        addr.isDefault = false;
+      });
+    }
+
+    const newAddress = {
+      street,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault: defaultStatus,
+    };
+
+    user.addresses.push(newAddress);
+
+    await user.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Address added successfully",
+      address: user.addresses[user.addresses.length - 1],
+    });
+  } catch (error) {
+    console.log(error);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
+async function deleteAddress(req, res) {
+  try {
+    const { addressId } = req.params;
+
+    const user = await userModel.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const addressIndex = user.addresses.findIndex(
+      (addr) => addr._id.toString() === addressId,
+    );
+
+    if (addressIndex === -1) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    }
+
+    const wasDefault = user.addresses[addressIndex].isDefault;
+    user.addresses.splice(addressIndex, 1);
+
+    // If the deleted address was default and other addresses remain, promote the first one
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+
+    await user.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Address removed successfully" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
+  }
+}
+
 module.exports = {
   registeruser,
   loginuser,
   getcurrentuser,
   logoutuser,
+  getAddresses,
+  addAddress,
+  deleteAddress,
 };

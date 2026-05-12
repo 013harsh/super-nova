@@ -44,4 +44,42 @@ const loginValidations = [
   respondwithvalidationError,
 ];
 
-module.exports = { registerUservalidations, loginValidations };
+const addUserAddressValidations = [
+  body("street")
+    .isString()
+    .withMessage("Street must be a string")
+    .notEmpty()
+    .withMessage("Street is required"),
+  body("city")
+    .isString()
+    .withMessage("City must be a string")
+    .notEmpty()
+    .withMessage("City is required"),
+  body("state")
+    .isString()
+    .withMessage("State must be a string")
+    .notEmpty()
+    .withMessage("State is required"),
+  body("pincode")
+    .optional()
+    .isString()
+    .withMessage("Pincode must be a string")
+    .notEmpty()
+    .withMessage("Pincode is required"),
+  body("country")
+    .isString()
+    .withMessage("Country must be a string")
+    .notEmpty()
+    .withMessage("Country is required"),
+  body("isDefault")
+    .optional()
+    .isBoolean()
+    .withMessage("isDefault must be a boolean"),
+  respondwithvalidationError,
+];
+
+module.exports = {
+  registerUservalidations,
+  loginValidations,
+  addUserAddressValidations,
+};

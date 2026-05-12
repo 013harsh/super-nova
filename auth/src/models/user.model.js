@@ -6,7 +6,22 @@ const addressSchema = new mongoose.Schema({
   state: String,
   zip: String,
   country: String,
+  pincode: {
+    type: String,
+    validate: {
+      validator: function (v) {
+        return /^\d{6}$/.test(v);
+      },
+      message: "Pincode must be a 6-digit number",
+    },
+  },
+  phone: String,
+  isDefault: {
+    type: Boolean,
+    default: false,
+  },
 });
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
