@@ -32,6 +32,7 @@ const registerUservalidations = [
     .withMessage("lastname must be a string")
     .notEmpty()
     .withMessage("lastname is required"),
+  body("role").optional().isIn(["user", "seller"]).withMessage("Invalid role"),
   respondwithvalidationError,
 ];
 

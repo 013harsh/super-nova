@@ -260,8 +260,6 @@ async function addAddress(req, res) {
       address: user.addresses[user.addresses.length - 1],
     });
   } catch (error) {
-    console.log(error);
-
     if (error.name === "ValidationError") {
       return res.status(400).json({
         success: false,
@@ -300,7 +298,6 @@ async function deleteAddress(req, res) {
     const wasDefault = user.addresses[addressIndex].isDefault;
     user.addresses.splice(addressIndex, 1);
 
-    // If the deleted address was default and other addresses remain, promote the first one
     if (wasDefault && user.addresses.length > 0) {
       user.addresses[0].isDefault = true;
     }
