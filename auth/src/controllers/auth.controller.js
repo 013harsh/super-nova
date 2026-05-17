@@ -65,7 +65,6 @@ async function registeruser(req, res) {
         role: user.role,
         addresses: user.addresses,
       },
-      token,
     });
   } catch (error) {
     console.log(error);
@@ -125,7 +124,6 @@ async function loginuser(req, res) {
         role: user.role,
         addresses: user.addresses,
       },
-      token,
     });
   } catch (error) {
     console.log(error);
@@ -178,46 +176,6 @@ async function getAddresses(req, res) {
   }
 }
 
-// async function addAddress(req, res) {
-//   try {
-//     const id = req.user.id;
-
-//     const { street, city, state, pincode, country, isDefault } = req.body;
-
-//     const user = await userModel.findOneAndUpdate(
-//       { _id: id },
-//       {
-//         $push: {
-//           addresses: {
-//             street,
-//             city,
-//             state,
-//             pincode,
-//             country,
-//             isDefault,
-//           },
-//         },
-//       },
-//       { new: true },
-//     );
-
-//     if (!user) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "User not found" });
-//     }
-
-//     return res.status(201).json({
-//       success: true,
-//       message: "Address added successfully",
-//       address: user.addresses[user.addresses.length - 1],
-//     });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ success: false, message: "Internal server error", error });
-//   }
-// }
 async function addAddress(req, res) {
   try {
     const id = req.user.id;
