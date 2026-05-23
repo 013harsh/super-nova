@@ -20,7 +20,7 @@ const Product = require("../models/product.model");
 const { connectTestDB, closeTestDB, clearTestDB } = require("./setup/testDb");
 const { uploadMultipleImages } = require("../services/imageUpload.service");
 
-describe("POST /api/product/", () => {
+describe("POST /api/products/", () => {
   beforeAll(async () => {
     await connectTestDB();
   });
@@ -45,7 +45,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(201);
 
@@ -73,7 +73,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(201);
 
@@ -86,7 +86,8 @@ describe("POST /api/product/", () => {
       const mockUploadedImages = [
         {
           url: "https://ik.imagekit.io/test/products/image1.jpg",
-          thumbnailUrl: "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image1.jpg",
+          thumbnailUrl:
+            "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image1.jpg",
           id: "mock_file_id_123",
         },
       ];
@@ -102,7 +103,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .field("title", productData.title)
         .field("description", productData.description)
         .field("price", productData.price)
@@ -113,13 +114,15 @@ describe("POST /api/product/", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.images).toHaveLength(1);
-      expect(response.body.data.images[0]).toEqual(expect.objectContaining(mockUploadedImages[0]));
+      expect(response.body.data.images[0]).toEqual(
+        expect.objectContaining(mockUploadedImages[0]),
+      );
 
       // Verify uploadMultipleImages was called
       expect(uploadMultipleImages).toHaveBeenCalledTimes(1);
       expect(uploadMultipleImages).toHaveBeenCalledWith(
         expect.any(Array),
-        "/products"
+        "/products",
       );
     });
 
@@ -127,12 +130,14 @@ describe("POST /api/product/", () => {
       const mockUploadedImages = [
         {
           url: "https://ik.imagekit.io/test/products/image1.jpg",
-          thumbnailUrl: "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image1.jpg",
+          thumbnailUrl:
+            "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image1.jpg",
           id: "mock_file_id_1",
         },
         {
           url: "https://ik.imagekit.io/test/products/image2.jpg",
-          thumbnailUrl: "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image2.jpg",
+          thumbnailUrl:
+            "https://ik.imagekit.io/test/products/tr:n-media_library_thumbnail/image2.jpg",
           id: "mock_file_id_2",
         },
       ];
@@ -147,7 +152,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .field("title", productData.title)
         .field("description", productData.description)
         .field("price", productData.price)
@@ -170,14 +175,14 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe("Validation failed");
       expect(response.body.errors).toBeDefined();
-      expect(response.body.errors.some(e => e.field === "title")).toBe(true);
+      expect(response.body.errors.some((e) => e.field === "title")).toBe(true);
     });
 
     it("should return 400 if price is missing", async () => {
@@ -187,14 +192,14 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe("Validation failed");
       expect(response.body.errors).toBeDefined();
-      expect(response.body.errors.some(e => e.field === "price")).toBe(true);
+      expect(response.body.errors.some((e) => e.field === "price")).toBe(true);
     });
 
     it("should return 400 if title is too short", async () => {
@@ -205,7 +210,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(400);
 
@@ -221,7 +226,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(400);
 
@@ -238,7 +243,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .send(productData)
         .expect(400);
 
@@ -254,7 +259,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .field("title", productData.title)
         .field("price", productData.price)
         .field("seller", productData.seller)
@@ -267,7 +272,9 @@ describe("POST /api/product/", () => {
 
   describe("ImageKit Upload Errors", () => {
     it("should return 500 if imagekit upload fails", async () => {
-      uploadMultipleImages.mockRejectedValue(new Error("ImageKit upload failed"));
+      uploadMultipleImages.mockRejectedValue(
+        new Error("ImageKit upload failed"),
+      );
 
       const productData = {
         title: "Test Product",
@@ -277,7 +284,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .field("title", productData.title)
         .field("description", productData.description)
         .field("price", productData.price)
@@ -291,8 +298,8 @@ describe("POST /api/product/", () => {
   });
 
   describe("File Size Limits", () => {
-    it("should reject files larger than 5MB", async () => {
-      const largeBuffer = Buffer.alloc(6 * 1024 * 1024); // 6MB
+    it("should reject files larger than 51MB", async () => {
+      const largeBuffer = Buffer.alloc(51 * 1024 * 1024); // 51MB
 
       const productData = {
         title: "Test Product",
@@ -301,7 +308,7 @@ describe("POST /api/product/", () => {
       };
 
       const response = await request(app)
-        .post("/api/product/")
+        .post("/api/products/")
         .field("title", productData.title)
         .field("price", productData.price)
         .field("seller", productData.seller)
