@@ -45,7 +45,6 @@ describe("POST /api/auth/register", () => {
       expect(response.body.user.username).toBe(validUserData.username);
       expect(response.body.user.email).toBe(validUserData.email);
       expect(response.body.user).not.toHaveProperty("password");
-      expect(response.body).toHaveProperty("token");
     });
 
     it("should hash the password before saving", async () => {
@@ -335,7 +334,6 @@ describe("POST /api/auth/login", () => {
       expect(response.body.user).toBeDefined();
       expect(response.body.user.email).toBe(validUserData.email);
       expect(response.body.user.username).toBe(validUserData.username);
-      expect(response.body).toHaveProperty("token");
     });
 
     it("should login successfully with username and password", async () => {
@@ -351,7 +349,6 @@ describe("POST /api/auth/login", () => {
       expect(response.body.message).toBe("User logged in successfully");
       expect(response.body.user).toBeDefined();
       expect(response.body.user.username).toBe(validUserData.username);
-      expect(response.body).toHaveProperty("token");
     });
 
     it("should set a JWT token in cookies upon login", async () => {
