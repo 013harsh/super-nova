@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const productModel = require("../models/product.model");
+const { publishToQueue } = require("../broker/broker");
 const {
   uploadMultipleImages,
   deleteMultipleImages,
@@ -24,6 +25,15 @@ async function createProduct(req, res) {
       price: { amount: Number(price), currency: currency || "INR" },
       seller,
       images: uploadedImages,
+    });
+
+    await publishToQueue("PRODUCT_SELLER_DASHBOARD.PRODUCT_CREATED", {
+      product,
+    });
+    await publishToQueue("PRODUCT_NOTIFICATION.PRODUCT_CREATED", {
+      email: req.user.email,
+      productId: product._id,
+      sellerId: seller,
     });
 
     res.status(201).json({

@@ -6,11 +6,11 @@ async function connect() {
   try {
     connection = await amqlib.connect(process.env.RABBIT_URL);
     console.log("connected rabbitMQ");
-    
+
     connection.on("error", (err) => {
       console.error("RabbitMQ connection error:", err.message);
     });
-    
+
     connection.on("close", () => {
       console.log("RabbitMQ connection closed");
     });

@@ -4,6 +4,9 @@ const orderRouter = require("./router/order.routes");
 
 const app = express();
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Order is running" });
+});
 app.use(express.json());
 app.use(cookieParser());
 

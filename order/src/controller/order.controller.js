@@ -1,5 +1,6 @@
-const orderModel = require("../models/order.models");
 const axios = require("axios");
+const orderModel = require("../models/order.models");
+const { publishToQueue } = require("../broker/broker");
 
 async function createOrder(req, res) {
   const user = req.user;
@@ -59,6 +60,10 @@ async function createOrder(req, res) {
         pincode: req.body.shippingAddress.pincode,
         country: req.body.shippingAddress.country,
       },
+    });
+
+    await publishToQueue("ORDER_SELLER_DASHBOARD.ORDER_CREAT ED", {
+      order,
     });
 
     res.status(201).json({ message: "Order created successfully", order });
@@ -122,15 +127,21 @@ async function cancelOrder(req, res) {
       return res.status(404).json({ message: "Order not found" });
     }
     if (order.user.toString() !== user.id) {
-      return res.status(403).json({ message: "Forbidden: you do not have access" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden: you do not have access" });
     }
 
     if (order.status === "PENDING" || order.status === "PAID") {
-        order.status = "CANCELLED";
-        await order.save();
-        return res.status(200).json({ message: "Order cancelled successfully", order });
+      order.status = "CANCELLED";
+      await order.save();
+      return res
+        .status(200)
+        .json({ message: "Order cancelled successfully", order });
     } else {
-        return res.status(400).json({ message: `Order cannot be cancelled in ${order.status} status` });
+      return res.status(400).json({
+        message: `Order cannot be cancelled in ${order.status} status`,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -147,15 +158,19 @@ async function updateOrderAddress(req, res) {
       return res.status(404).json({ message: "Order not found" });
     }
     if (order.user.toString() !== user.id) {
-      return res.status(403).json({ message: "Forbidden: you do not have access" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden: you do not have access" });
     }
-    
+
     if (order.status !== "PENDING") {
-       return res.status(400).json({ message: "Cannot update address after payment is captured" });
+      return res
+        .status(400)
+        .json({ message: "Cannot update address after payment is captured" });
     }
 
     if (!req.body.shippingAddress) {
-       return res.status(400).json({ message: "Shipping address is required" });
+      return res.status(400).json({ message: "Shipping address is required" });
     }
 
     order.shippingAddress = req.body.shippingAddress;
@@ -167,4 +182,10 @@ async function updateOrderAddress(req, res) {
   }
 }
 
-module.exports = { createOrder, getUserOrders, getOrderById, cancelOrder, updateOrderAddress };
+module.exports = {
+  createOrder,
+  getUserOrders,
+  getOrderById,
+  cancelOrder,
+  updateOrderAddress,
+};

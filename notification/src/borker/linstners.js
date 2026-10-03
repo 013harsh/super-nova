@@ -10,6 +10,15 @@ module.exports = function () {
     sendEmail(data.email, "Welcome to our services", "", emailHTMLTemplate);
   });
 
+  suscribeToQueue("PAYMENT_NOTIFICATION.PAYMENT_INITIATED", (data) => {
+    const emailHTMLTemplate = `
+    <h1>Payment Initiated</h1>
+    <h1>Welcome ${data.username}</h1>
+      <p>we have  initiated  your payment ${data.amount} for order id ${data.orderId}</p>
+    `;
+    sendEmail(data.email, "Payment Initiated", "", emailHTMLTemplate);
+  });
+
   suscribeToQueue("PAYMENT_NOTIFICATION.PAYMENT_SUCCESS", (data) => {
     const emailHTMLTemplate = `
      <h1>Welcome ${data.username}</h1>
@@ -27,5 +36,14 @@ module.exports = function () {
       <p>kindly retry the payment</p>
     `;
     sendEmail(data.email, "Payment Failed", "", emailHTMLTemplate);
+  });
+
+  suscribeToQueue("PRODUCT_NOTIFICATION.PRODUCT_CREATED", async (data) => { 
+    const emailHTMLTemplate = `
+    <h1>Product Created</h1>
+    <h1>Welcome ${data.username}</h1>
+    <p>we have launched your new product</p>
+    `;
+    sendEmail(data.email, "NEW PRODUCT LAUNCHED", "", emailHTMLTemplate);
   });
 };
